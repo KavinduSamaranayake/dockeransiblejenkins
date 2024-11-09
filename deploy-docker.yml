@@ -2,23 +2,45 @@
 - hosts: dev
   become: True
   tasks:
-    - name: Install python pip
+    - name: Install python3 pip
       apt:
         name: python3-pip
         state: present
+
+    - name: Install required dependencies for Docker
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+
+    - name: Add Docker's official GPG key
+      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release | lower }} stable"
+        state: present
+
     - name: Install docker
       apt:
         name: docker-ce
         state: present
-    - name: start docker
+
+    - name: Start Docker service
       service:
         name: docker
         state: started
         enabled: yes
-    - name: Install docker-py python module
+
+    - name: Install docker python module
       pip:
         name: docker
         state: present
+
     - name: Start the container
       docker_container:
         name: hariapp
