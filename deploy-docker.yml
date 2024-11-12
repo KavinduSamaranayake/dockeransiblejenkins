@@ -30,7 +30,6 @@
         state: present
         update_cache: yes
 
-
     - name: Start the container
       docker_container:
         name: hariapp
